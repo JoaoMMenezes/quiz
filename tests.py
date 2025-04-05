@@ -94,3 +94,23 @@ def test_select_multiple_correct_choices():
     question.set_correct_choices([b.id, c.id])
     result = question.select_choices([b.id, c.id])
     assert sorted(result) == sorted([b.id, c.id])
+
+@pytest.fixture
+def question_with_choices():
+    question = Question(title='Sample', max_selections=2)
+    a = question.add_choice('a', False)
+    b = question.add_choice('b', True)
+    c = question.add_choice('c', True)
+    return question
+
+def test_fixture_selects_correct_choices(question_with_choices):
+    correct_ids = [choice.id for choice in question_with_choices.choices if choice.is_correct]
+    question_with_choices.set_correct_choices(correct_ids)
+    selected = question_with_choices.select_choices(correct_ids)
+    assert sorted(selected) == sorted(correct_ids)
+
+def test_fixture_remove_choice(question_with_choices):
+    initial_len = len(question_with_choices.choices)
+    choice_to_remove = question_with_choices.choices[0]
+    question_with_choices.remove_choice_by_id(choice_to_remove.id)
+    assert len(question_with_choices.choices) == initial_len - 1
